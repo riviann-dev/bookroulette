@@ -20,6 +20,7 @@ function extractJsonPayload(text) {
     return JSON.parse(text.slice(start));
 }
 
+// Importante
 async function parseJson(response) {
     // Leemos el texto completo y despues extraemos el JSON.
     const rawText = await response.text();
