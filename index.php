@@ -45,7 +45,6 @@ while ($genreRow = $genresResult->fetch_assoc()) {
                 <p class="eyebrow">Recomendacion literaria interactiva</p>
                 <h1>Descubre tu siguiente lectura con una ruleta guiada por tu mood.</h1>
                 <p class="lead">Elige un genero, dinos como te sientes y deja que el motor heuristico seleccione opciones con tono, profundidad y energia acordes a ti.</p>
-                <p class="helper-text">Ahora el catalogo incluye varios generos para que la demo se vea mas real y variada.</p>
             </div>
 
             <!-- Panel principal donde el usuario elige genero y mood -->
