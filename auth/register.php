@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro | BookRoulette</title>
     <link rel="stylesheet" href="/bookroulette/css/style.css">
-    <link rel="shortcut icon" href="img/logoBookRoulette.png" type="image/x-icon">
+    <link rel="shortcut icon" href="/bookroulette/img/logoBookRoulette.png" type="image/x-icon">
 </head>
 <body class="auth-page">
     <main class="auth-shell">

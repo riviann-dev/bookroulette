@@ -21,7 +21,7 @@ while ($genreRow = $genresResult->fetch_assoc()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BookRoulette</title>
     <link rel="stylesheet" href="/bookroulette/css/style.css">
-    <link rel="shortcut icon" href="img/logoBookRoulette.png" type="image/x-icon">
+    <link rel="shortcut icon" href="/bookroulette/img/logoBookRoulette.png" type="image/x-icon">
 </head>
 <body>
     <header class="hero">

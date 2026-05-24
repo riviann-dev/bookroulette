@@ -18,7 +18,7 @@ $booksCount = (int) $conn->query("SELECT COUNT(*) AS total FROM libros")->fetch_
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard admin | BookRoulette</title>
     <link rel="stylesheet" href="/bookroulette/css/style.css">
-    <link rel="shortcut icon" href="img/logoBookRoulette.png" type="image/x-icon">
+    <link rel="shortcut icon" href="/bookroulette/img/logoBookRoulette.png" type="image/x-icon">
 </head>
 <body class="admin-page">
     <main class="admin-shell">
