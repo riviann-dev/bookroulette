@@ -65,7 +65,11 @@ while ($genreRow = $genresResult->fetch_assoc()) {
                     <select id="mood">
                         <option value="">Selecciona mood</option>
                         <option value="feliz">Feliz</option>
+                        <option value="relajado">Relajado</option>
                         <option value="reflexivo">Reflexivo</option>
+                        <option value="curioso">Curioso</option>
+                        <option value="aventurero">Aventurero</option>
+                        <option value="romantico">Romantico</option>
                         <option value="intenso">Con ganas de algo intenso</option>
                         <option value="oscuro">Oscuro</option>
                     </select>

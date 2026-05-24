@@ -1,6 +1,10 @@
 const moodProfiles = {
     feliz: { tono: 9, profundidad: 5, energia: 6 },
+    relajado: { tono: 8, profundidad: 4, energia: 3 },
     reflexivo: { tono: 5, profundidad: 10, energia: 3 },
+    curioso: { tono: 6, profundidad: 8, energia: 5 },
+    aventurero: { tono: 7, profundidad: 5, energia: 9 },
+    romantico: { tono: 8, profundidad: 7, energia: 4 },
     intenso: { tono: 4, profundidad: 6, energia: 10 },
     oscuro: { tono: 2, profundidad: 8, energia: 8 }
 };
