@@ -21,10 +21,14 @@ if ($favoriteId <= 0) {
 }
 
 $user = currentUser();
+
 // Solo se puede borrar un favorito si pertenece al usuario logueado.
+// Esta condicion evita que un usuario borre favoritos de otra cuenta.
 $stmt = $conn->prepare("DELETE FROM favoritos WHERE id_favorito = ? AND id_usuario = ?");
 $stmt->bind_param("ii", $favoriteId, $user["id_usuario"]);
 $stmt->execute();
 
+// Aunque no hubiera fila para borrar, respondemos ok porque el estado final es correcto:
+// ese favorito ya no aparece para el usuario.
 echo json_encode(["ok" => true], JSON_UNESCAPED_UNICODE);
 ?>

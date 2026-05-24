@@ -30,6 +30,7 @@ $stmt = $conn->prepare("
 ");
 
 $user = currentUser();
+// Filtramos por el id del usuario para que nadie vea favoritos de otra cuenta.
 $stmt->bind_param("i", $user["id_usuario"]);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -40,5 +41,6 @@ while ($row = $result->fetch_assoc()) {
     $favorites[] = $row;
 }
 
+// Devolvemos una lista JSON que JavaScript pintara en la seccion de favoritos.
 echo json_encode($favorites, JSON_UNESCAPED_UNICODE);
 ?>

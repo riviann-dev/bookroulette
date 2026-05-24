@@ -3,7 +3,10 @@ require_once __DIR__ . "/../db/conexion.php";
 requireAdmin();
 
 // Cargamos catalogo y datos generales para el panel.
+// Esta pagina solo llega aqui si requireAdmin() confirma que el usuario es admin.
 $books = $conn->query("SELECT id, titulo, autor, genero, descripcion, tono, profundidad, energia, isbn_libro, enlace_compra FROM libros ORDER BY titulo ASC");
+
+// Contadores rapidos para mostrar un resumen del estado de la aplicacion.
 $usersCount = (int) $conn->query("SELECT COUNT(*) AS total FROM usuarios")->fetch_assoc()["total"];
 $favoritesCount = (int) $conn->query("SELECT COUNT(*) AS total FROM favoritos")->fetch_assoc()["total"];
 $booksCount = (int) $conn->query("SELECT COUNT(*) AS total FROM libros")->fetch_assoc()["total"];
@@ -68,6 +71,7 @@ $booksCount = (int) $conn->query("SELECT COUNT(*) AS total FROM libros")->fetch_
                         <?php while ($book = $books->fetch_assoc()): ?>
                             <!-- Cada fila representa un libro del catalogo -->
                             <tr>
+                                <!-- htmlspecialchars evita que texto guardado en BD se interprete como HTML. -->
                                 <td><?= htmlspecialchars($book["titulo"]) ?></td>
                                 <td><?= htmlspecialchars($book["autor"]) ?></td>
                                 <td><?= htmlspecialchars($book["genero"]) ?></td>

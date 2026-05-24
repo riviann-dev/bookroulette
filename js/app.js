@@ -2,11 +2,14 @@ import { getBooks, getFavorites, getSession, removeFavorite, saveFavorite } from
 import { calcularPuntuacion, obtenerTop } from "./scoring.js";
 import { crearRuleta, girarRuleta } from "./roulette.js";
 
-// Guardamos las opciones actuales de la ruleta y el ultimo libro ganador.
+// Estado principal de la pantalla.
+// opcionesActuales son los libros que entran en la ruleta despues de puntuar.
+// ultimaGanadora guarda el libro que salio al girar, para poder marcarlo favorito.
 let opcionesActuales = [];
 let ultimaGanadora = null;
 let session = { loggedIn: false, user: null };
 
+// Referencias a elementos del HTML que se actualizan desde JavaScript.
 const resultNode = document.getElementById("resultado");
 const statusNode = document.getElementById("statusMessage");
 const optionsListNode = document.getElementById("optionsList");
@@ -21,6 +24,7 @@ function setStatus(message) {
 }
 
 function renderOptions(libros) {
+    // Pinta la lista de libros que han sido seleccionados para la ruleta.
     if (!optionsListNode) {
         return;
     }
@@ -30,6 +34,7 @@ function renderOptions(libros) {
         return;
     }
 
+    // Convertimos cada libro en una tarjeta sencilla con score, titulo, autor y genero.
     optionsListNode.innerHTML = libros.map((libro) => `
         <article class="book-option">
             <p class="book-rank">Score ${libro.score}</p>
@@ -41,7 +46,8 @@ function renderOptions(libros) {
 }
 
 function renderResult(libro) {
-    // Pintamos la ficha final del libro que ha ganado.
+    // Pinta la ficha final del libro ganador despues del giro.
+    // Algunos campos son opcionales, por eso se comprueba si existen antes de mostrarlos.
     resultNode.innerHTML = `
         <h2>${libro.titulo}</h2>
         <p class="result-author">${libro.autor}</p>
@@ -58,11 +64,13 @@ function renderResult(libro) {
 }
 
 async function renderFavorites() {
+    // Si no hay zona de favoritos o el usuario no esta logueado, no hacemos nada.
     if (!favoritesListNode || !session.loggedIn) {
         return;
     }
 
     try {
+        // Pedimos los favoritos a la API y los pintamos debajo de la ruleta.
         const favorites = await getFavorites();
 
         if (!favorites.length) {
@@ -70,6 +78,7 @@ async function renderFavorites() {
             return;
         }
 
+        // Cada boton "Quitar" lleva el id del favorito para poder eliminarlo despues.
         favoritesListNode.innerHTML = favorites.map((favorite) => `
             <article class="favorite-item">
                 <div>
@@ -80,11 +89,13 @@ async function renderFavorites() {
             </article>
         `).join("");
     } catch (error) {
+        // Si hay un problema con la sesion o la API, lo mostramos en la misma seccion.
         favoritesListNode.innerHTML = `<p class='empty-state'>${error.message}</p>`;
     }
 }
 
 window.generarOpciones = async function () {
+    // Leemos las opciones elegidas por el usuario en los selectores.
     const genero = document.getElementById("genero").value;
     const mood = document.getElementById("mood").value;
 
@@ -94,6 +105,7 @@ window.generarOpciones = async function () {
     }
 
     try {
+        // Traemos el catalogo completo y dejamos que scoring.js calcule las mejores opciones.
         const books = await getBooks();
 
         // 1. Calculamos la puntuacion de todos los libros.
@@ -113,6 +125,7 @@ window.generarOpciones = async function () {
         renderOptions(opcionesActuales);
         setStatus("Opciones generadas. Ahora puedes girar la ruleta.");
 
+        // Reiniciamos el resultado anterior para que no se pueda guardar un libro viejo.
         ultimaGanadora = null;
         resultNode.innerHTML = `
             <h2>Todo listo para girar</h2>
@@ -120,16 +133,19 @@ window.generarOpciones = async function () {
         `;
         favoriteButton?.classList.add("hidden");
     } catch (error) {
+        // Cualquier error de la API se comunica en el texto de estado.
         setStatus(error.message);
     }
 };
 
 window.spin = function () {
+    // No tiene sentido girar si antes no se generaron opciones.
     if (opcionesActuales.length === 0) {
         setStatus("Primero genera opciones antes de girar la ruleta.");
         return;
     }
 
+    // Elegimos al azar una posicion dentro de las opciones ya puntuadas.
     const index = Math.floor(Math.random() * opcionesActuales.length);
 
     // El mismo indice se usa para girar la ruleta y mostrar el resultado.
@@ -137,6 +153,7 @@ window.spin = function () {
     setStatus("Girando la ruleta...");
 
     setTimeout(() => {
+        // Esperamos lo mismo que dura la animacion CSS para mostrar el resultado final.
         const ganador = opcionesActuales[index];
         ultimaGanadora = ganador;
         renderResult(ganador);
@@ -145,10 +162,12 @@ window.spin = function () {
     }, 4000);
 };
 
+// Conectamos los botones principales con sus funciones.
 document.getElementById("generateButton")?.addEventListener("click", window.generarOpciones);
 document.getElementById("spinButton")?.addEventListener("click", window.spin);
 
 favoriteButton?.addEventListener("click", async () => {
+    // Solo se puede guardar favorito cuando ya hay un libro ganador.
     if (!ultimaGanadora) {
         setStatus("Gira la ruleta antes de guardar un favorito.");
         return;
@@ -157,6 +176,7 @@ favoriteButton?.addEventListener("click", async () => {
     try {
         const response = await saveFavorite(ultimaGanadora.id);
         setStatus(response.message || "Libro guardado.");
+        // Recargamos favoritos para que el nuevo libro aparezca al momento.
         await renderFavorites();
     } catch (error) {
         setStatus(error.message);
@@ -165,6 +185,7 @@ favoriteButton?.addEventListener("click", async () => {
 
 favoritesListNode?.addEventListener("click", async (event) => {
     // Delegacion de eventos: escuchamos el click en toda la lista.
+    // Esto evita crear un listener distinto para cada boton de favoritos.
     const button = event.target.closest(".remove-favorite");
     if (!button) {
         return;
@@ -173,6 +194,7 @@ favoritesListNode?.addEventListener("click", async (event) => {
     try {
         await removeFavorite(Number(button.dataset.id));
         setStatus("Favorito eliminado.");
+        // Volvemos a pintar la lista para reflejar el borrado.
         await renderFavorites();
     } catch (error) {
         setStatus(error.message);
@@ -181,6 +203,7 @@ favoritesListNode?.addEventListener("click", async (event) => {
 
 window.addEventListener("load", async () => {
     // Al entrar mostramos una ruleta inicial de ejemplo.
+    // Todavia no son recomendaciones reales: solo sirve para que la interfaz no este vacia.
     crearRuleta([
         { titulo: "Fantasia" },
         { titulo: "Terror" },

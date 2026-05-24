@@ -7,6 +7,7 @@ $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Recogemos los datos enviados por el formulario.
+    // trim elimina espacios al principio y al final en los campos de texto.
     $titulo = trim($_POST["titulo"] ?? "");
     $autor = trim($_POST["autor"] ?? "");
     $genero = trim($_POST["genero"] ?? "");
@@ -17,18 +18,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $isbn = trim($_POST["isbn_libro"] ?? "");
     $enlaceCompra = trim($_POST["enlace_compra"] ?? "");
 
+    // Convertimos cadenas vacias en null para guardar campos opcionales limpios.
     $isbn = $isbn === "" ? null : $isbn;
     $descripcion = $descripcion === "" ? null : $descripcion;
     $enlaceCompra = $enlaceCompra === "" ? null : $enlaceCompra;
 
+    // Solo titulo, autor y genero son obligatorios.
+    // Los valores numericos ya vienen controlados por min/max en el formulario.
     if ($titulo === "" || $autor === "" || $genero === "") {
         $error = "Titulo, autor y genero son obligatorios.";
     } else {
         // Insertamos el libro en la base de datos.
+        // Usamos consulta preparada para enviar valores sin construir SQL a mano.
         $stmt = $conn->prepare("INSERT INTO libros (titulo, autor, genero, descripcion, tono, profundidad, energia, isbn_libro, enlace_compra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssssiiiss", $titulo, $autor, $genero, $descripcion, $tono, $profundidad, $energia, $isbn, $enlaceCompra);
         $stmt->execute();
 
+        // Al terminar volvemos al dashboard para ver el libro en la tabla.
         header("Location: /bookroulette/admin/dashboard.php");
         exit;
     }
@@ -49,10 +55,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <h1>Anadir libro</h1>
 
             <?php if ($error !== ""): ?>
+                <!-- Mensaje visible si falta algun campo obligatorio. -->
                 <div class="flash flash-error"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
 
             <form method="post" class="stack-form admin-form">
+                <!-- Formulario del CRUD: estos campos coinciden con las columnas de libros. -->
                 <label>Titulo<input type="text" name="titulo" required></label>
                 <label>Autor<input type="text" name="autor" required></label>
                 <label>Genero<input type="text" name="genero" required placeholder="fantasia, terror, romance..."></label>

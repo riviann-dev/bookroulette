@@ -12,11 +12,13 @@ $books = [];
 
 while ($row = $result->fetch_assoc()) {
     // Convertimos estos campos a numero para trabajar mejor en JS.
+    // MySQL los devuelve como texto, pero el algoritmo de scoring necesita numeros.
     $row["tono"] = (int) $row["tono"];
     $row["profundidad"] = (int) $row["profundidad"];
     $row["energia"] = (int) $row["energia"];
     $books[] = $row;
 }
 
+// JSON_UNESCAPED_UNICODE mantiene acentos y caracteres espanoles legibles.
 echo json_encode($books, JSON_UNESCAPED_UNICODE);
 ?>

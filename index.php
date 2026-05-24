@@ -5,10 +5,12 @@ require_once __DIR__ . "/db/conexion.php";
 $user = currentUser();
 
 // Cargamos los generos desde la base de datos para que el selector sea dinamico.
+// Asi, si el admin crea un genero nuevo, aparecera automaticamente en la portada.
 $genresResult = $conn->query("SELECT DISTINCT genero FROM libros WHERE genero IS NOT NULL AND genero <> '' ORDER BY genero ASC");
 $genres = [];
 
 while ($genreRow = $genresResult->fetch_assoc()) {
+    // Guardamos cada genero en un array que luego se recorre dentro del select.
     $genres[] = $genreRow["genero"];
 }
 ?>
@@ -54,6 +56,7 @@ while ($genreRow = $genresResult->fetch_assoc()) {
                     Genero literario
                     <select id="genero">
                         <option value="">Selecciona genero</option>
+                        <!-- Las opciones salen de la tabla libros, no estan escritas a mano. -->
                         <?php foreach ($genres as $genre): ?>
                             <option value="<?= htmlspecialchars($genre) ?>"><?= htmlspecialchars(ucwords($genre)) ?></option>
                         <?php endforeach; ?>
@@ -63,6 +66,7 @@ while ($genreRow = $genresResult->fetch_assoc()) {
                 <label>
                     Estado de animo
                     <select id="mood">
+                        <!-- Estos valores deben coincidir con los perfiles de js/scoring.js. -->
                         <option value="">Selecciona mood</option>
                         <option value="feliz">Feliz</option>
                         <option value="relajado">Relajado</option>
@@ -138,6 +142,7 @@ while ($genreRow = $genresResult->fetch_assoc()) {
         // Configuracion basica compartida con JavaScript.
         window.bookRouletteConfig = {
             baseUrl: "/bookroulette",
+            // Pasamos el usuario actual a JavaScript por si necesita datos de sesion.
             user: <?= json_encode($user, JSON_UNESCAPED_UNICODE) ?>
         };
     </script>

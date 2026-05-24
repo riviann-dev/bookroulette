@@ -6,6 +6,7 @@ header("Content-Type: application/json; charset=utf-8");
 
 $user = currentUser();
 
+// JavaScript usa loggedIn para saber si debe cargar favoritos o no.
 echo json_encode([
     "loggedIn" => $user !== null,
     "user" => $user,

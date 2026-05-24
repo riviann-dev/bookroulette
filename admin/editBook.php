@@ -3,6 +3,7 @@ require_once __DIR__ . "/../db/conexion.php";
 requireAdmin();
 
 // Primero buscamos el libro que se va a editar.
+// El id llega por la URL: editBook.php?id=...
 $bookId = (int) ($_GET["id"] ?? 0);
 $stmt = $conn->prepare("SELECT * FROM libros WHERE id = ?");
 $stmt->bind_param("i", $bookId);
@@ -10,6 +11,7 @@ $stmt->execute();
 $book = $stmt->get_result()->fetch_assoc();
 
 if (!$book) {
+    // Si el id no existe, volvemos al dashboard para evitar mostrar un formulario vacio.
     header("Location: /bookroulette/admin/dashboard.php");
     exit;
 }
@@ -18,6 +20,7 @@ $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Recogemos los cambios del formulario.
+    // Se usan los mismos nombres que en addBook.php para mantener el CRUD consistente.
     $titulo = trim($_POST["titulo"] ?? "");
     $autor = trim($_POST["autor"] ?? "");
     $genero = trim($_POST["genero"] ?? "");
@@ -28,18 +31,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $isbn = trim($_POST["isbn_libro"] ?? "");
     $enlaceCompra = trim($_POST["enlace_compra"] ?? "");
 
+    // Los campos opcionales se guardan como null si el admin los deja vacios.
     $isbn = $isbn === "" ? null : $isbn;
     $descripcion = $descripcion === "" ? null : $descripcion;
     $enlaceCompra = $enlaceCompra === "" ? null : $enlaceCompra;
 
+    // Evitamos actualizar registros incompletos.
     if ($titulo === "" || $autor === "" || $genero === "") {
         $error = "Titulo, autor y genero son obligatorios.";
     } else {
         // Actualizamos el registro con los nuevos datos.
+        // El WHERE id = ? asegura que solo se cambia el libro seleccionado.
         $updateStmt = $conn->prepare("UPDATE libros SET titulo = ?, autor = ?, genero = ?, descripcion = ?, tono = ?, profundidad = ?, energia = ?, isbn_libro = ?, enlace_compra = ? WHERE id = ?");
         $updateStmt->bind_param("ssssiiissi", $titulo, $autor, $genero, $descripcion, $tono, $profundidad, $energia, $isbn, $enlaceCompra, $bookId);
         $updateStmt->execute();
 
+        // Tras guardar, volvemos a la lista del catalogo.
         header("Location: /bookroulette/admin/dashboard.php");
         exit;
     }
@@ -60,10 +67,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <h1>Editar libro</h1>
 
             <?php if ($error !== ""): ?>
+                <!-- Muestra errores de validacion del formulario. -->
                 <div class="flash flash-error"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
 
             <form method="post" class="stack-form admin-form">
+                <!-- Los value cargan la informacion actual del libro para poder modificarla. -->
                 <label>Titulo<input type="text" name="titulo" required value="<?= htmlspecialchars($book["titulo"]) ?>"></label>
                 <label>Autor<input type="text" name="autor" required value="<?= htmlspecialchars($book["autor"]) ?>"></label>
                 <label>Genero<input type="text" name="genero" required value="<?= htmlspecialchars($book["genero"]) ?>"></label>

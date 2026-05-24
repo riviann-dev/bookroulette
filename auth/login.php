@@ -10,9 +10,11 @@ if (isLoggedIn()) {
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Recogemos los datos enviados desde el formulario.
     $email = trim($_POST["email"] ?? "");
     $password = $_POST["password"] ?? "";
 
+    // Validacion basica: no dejamos avanzar si falta algun campo.
     if ($email === "" || $password === "") {
         $error = "Completa email y contrasena.";
     } else {
@@ -23,6 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
 
+        // password_verify compara la contrasena escrita con el hash guardado.
         if (!$user || !password_verify($password, $user["password"])) {
             $error = "Credenciales incorrectas.";
         } else {
@@ -34,6 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 "rol" => $user["rol"],
             ];
 
+            // Tras iniciar sesion volvemos a la app principal.
             header("Location: /bookroulette/index.php");
             exit;
         }
@@ -56,6 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <p class="auth-copy">Accede para guardar tus libros favoritos y, si eres admin, gestionar el catalogo.</p>
 
             <?php if ($error !== ""): ?>
+                <!-- Mostramos errores de validacion o credenciales sin usar alert(). -->
                 <div class="flash flash-error"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
 

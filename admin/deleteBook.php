@@ -3,6 +3,7 @@ require_once __DIR__ . "/../db/conexion.php";
 requireAdmin();
 
 // Borrado simple por id. Se llama desde el enlace del dashboard.
+// Convertimos a entero para evitar usar directamente texto recibido por URL.
 $bookId = (int) ($_GET["id"] ?? 0);
 
 if ($bookId > 0) {
@@ -12,6 +13,7 @@ if ($bookId > 0) {
     $stmt->execute();
 }
 
+// Siempre volvemos al panel, tanto si se borro como si el id no era valido.
 header("Location: /bookroulette/admin/dashboard.php");
 exit;
 ?>

@@ -11,11 +11,13 @@ $error = "";
 $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Recogemos y limpiamos los datos del formulario de registro.
     $nombre = trim($_POST["nombre"] ?? "");
     $email = trim($_POST["email"] ?? "");
     $password = $_POST["password"] ?? "";
     $passwordConfirm = $_POST["password_confirm"] ?? "";
 
+    // Validaciones en cadena. En cuanto falla una, se guarda el mensaje de error.
     if ($nombre === "" || $email === "" || $password === "" || $passwordConfirm === "") {
         $error = "Completa todos los campos.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -25,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif ($password !== $passwordConfirm) {
         $error = "Las contrasenas no coinciden.";
     } else {
+        // Comprobamos si ya existe una cuenta con el mismo email.
         $existsStmt = $conn->prepare("SELECT id_usuario FROM usuarios WHERE email = ?");
         $existsStmt->bind_param("s", $email);
         $existsStmt->execute();
@@ -37,9 +40,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $countResult = $conn->query("SELECT COUNT(*) AS total FROM usuarios");
             $totalUsers = (int) $countResult->fetch_assoc()["total"];
             $rol = $totalUsers === 0 ? "admin" : "usuario";
+
             // La contrasena nunca se guarda en texto plano.
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
+            // Guardamos el nuevo usuario con consulta preparada para evitar inyeccion SQL.
             $stmt = $conn->prepare("INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("ssss", $nombre, $email, $passwordHash, $rol);
             $stmt->execute();
@@ -67,10 +72,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <p class="auth-copy">Registrate para guardar recomendaciones y consultar tus favoritos.</p>
 
             <?php if ($error !== ""): ?>
+                <!-- Mensaje de error cuando algun dato del registro no es valido. -->
                 <div class="flash flash-error"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
 
             <?php if ($success !== ""): ?>
+                <!-- Mensaje de exito cuando la cuenta se crea correctamente. -->
                 <div class="flash flash-success"><?= htmlspecialchars($success) ?></div>
             <?php endif; ?>
 
