@@ -4,6 +4,7 @@ require_once __DIR__ . "/../db/conexion.php";
 // Guarda un libro como favorito para el usuario actual.
 header("Content-Type: application/json; charset=utf-8");
 
+// Comprueba la sesión
 if (!isLoggedIn()) {
     http_response_code(401);
     echo json_encode(["error" => "Debes iniciar sesion para guardar favoritos."], JSON_UNESCAPED_UNICODE);
